@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, LayoutGroup } from 'framer-motion';
 import { NamesBlock } from './components/blocks/NamesBlock';
-import { ScheduleBlock } from './components/blocks/ScheduleBlock';
+
 import { MainContainer } from './ui/layout/MainContainer';
-import { LocationBlock } from './components/blocks/LocationBlock';
+import { ScheduleBlock } from './components/blocks/ScheduleBlock';
 import { DressCodeBlock } from './components/blocks/DressCodeBlock';
 import { FormBlock } from './components/blocks/FormBlock';
 import { ContactsBlock } from './components/blocks/ContactsBlock';
 import { StartBlock } from './components/blocks/StartBlock';
+import { LocationBlock } from './components/blocks/LocationBlock';
 
 export default function Home() {
     const [isUnlocked, setIsUnlocked] = useState(false);
@@ -61,8 +62,8 @@ export default function Home() {
                         : ''
                 }`}
             >
-                <ScheduleBlock />
                 <LocationBlock />
+                <ScheduleBlock />
                 <DressCodeBlock />
                 <FormBlock />
                 <ContactsBlock />

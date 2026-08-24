@@ -10,3 +10,4 @@
 
 //https://b4701886-2e3c-4a60-9e9f-056bd416f1cc.selstorage.ru/pp.mp4
 //https://inviteforwed.com/egorandksenia/package1
+//https://invitelove.ru/love_is

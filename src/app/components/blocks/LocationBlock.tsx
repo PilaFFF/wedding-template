@@ -1,19 +1,96 @@
+'use client';
+
 import { motion } from 'framer-motion';
-import React from 'react';
 import { ComponentContainer } from '../../ui/layout/ComponentContainer';
-import { greenBg } from '@/app/consts/constColors.const';
+import { beigeBg } from '@/app/consts/constColors.const';
+import { Flower } from 'lucide-react';
 
 export const LocationBlock = () => {
+    // Настройки срабатывания для каждого блока
+    const animateOnScroll = {
+        initial: { opacity: 0, y: 40 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, amount: 0.3 }, // Сработает, когда элемент показался на 30%
+        transition: { duration: 0.8, ease: 'easeOut' },
+    };
+
     return (
-        <ComponentContainer className={greenBg}>
-            <motion.section
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1 }}
-                className="text-center mb-16 z-10"
-            >
-                <span className="text-slate-900 text-lg">Локация</span>
-            </motion.section>
+        <ComponentContainer className={beigeBg}>
+            <section className="flex flex-col justify-between h-full mb-16 z-10 p-6 font-serif">
+                {/* 1. Блок "КОГДА?" со своей анимацией */}
+                <motion.div
+                    {...animateOnScroll}
+                    className="flex flex-col gap-2 justify-start"
+                >
+                    <h2 className="text-slate-900 text-6xl flex items-center gap-3">
+                        <motion.span
+                            animate={{ rotate: [-12, 12, -12] }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                            }}
+                            className="inline-flex items-center justify-center"
+                        >
+                            <Flower className="w-12 h-12" />
+                        </motion.span>
+                        <span>КОГДА?</span>
+                    </h2>
+                    <p className="text-2xl text-slate-900">
+                        Будем рады видеть вас 24 ноября в 15:00
+                    </p>
+                </motion.div>
+
+                {/* 2. Блок "ГДЕ?" со своей анимацией */}
+                <motion.div
+                    {...animateOnScroll}
+                    className="flex flex-col gap-2 justify-end my-8"
+                >
+                    <h2 className="text-slate-900 text-6xl flex items-center justify-end gap-3">
+                        <motion.span
+                            animate={{ rotate: [-12, 12, -12] }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                            }}
+                            className="inline-flex items-center justify-center"
+                        >
+                            <Flower className="w-12 h-12" />
+                        </motion.span>
+                        <span>ГДЕ?</span>
+                    </h2>
+                    <p className="text-2xl text-slate-900 text-end">
+                        Ресторан{' '}
+                        <a
+                            href="https://leslis.ru/"
+                            target="_blank"
+                            className="text-[#606c93] underline cursor-pointer"
+                        >
+                            «Лес и Лис»
+                        </a>
+                        , Белгород, ул.Волчанская 292Б
+                    </p>
+                </motion.div>
+
+                {/* 3. Кнопка со своей анимацией */}
+                <motion.button
+                    {...animateOnScroll}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                        window.open(
+                            'https://yandex.ru/maps/-/CTwpEV7N',
+                            '_blank',
+                        );
+                    }}
+                    className="cursor-pointer text-3xl rounded-full border border-slate-900 px-4 py-2 text-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-300"
+                >
+                    Посмотреть на карте →
+                </motion.button>
+
+                <div></div>
+            </section>
         </ComponentContainer>
     );
 };
