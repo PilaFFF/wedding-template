@@ -81,10 +81,12 @@ export const LocationBlock = () => {
                     onClick={() => {
                         window.open(
                             'https://yandex.ru/maps/-/CTwpEV7N',
-                            '_blank',
+                            '_blank'
                         );
                     }}
-                    className="cursor-pointer text-3xl rounded-full border border-slate-900 px-4 py-2 text-slate-900 hover:bg-slate-900 hover:text-white transition-all duration-300"
+                    className="px-16 py-4 border-2 border-black bg-transparent text-2xl font-normal tracking-wider uppercase font-serif
+                                         hover:bg-black hover:text-[#fefdfc] transition-all duration-300 ease-in-out
+                                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black"
                 >
                     Посмотреть на карте →
                 </motion.button>
