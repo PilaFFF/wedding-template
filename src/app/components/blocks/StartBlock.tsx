@@ -15,15 +15,11 @@ const VIDEO_URL =
 
 export const StartBlock = ({ onUnlock, isUnlocked }: IProps) => {
     return (
-        <motion.div
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: 'easeInOut' }}
-            className="w-full h-full"
-        >
-            <ComponentContainer className={beigeBg}>
-                <div className="relative h-full w-full flex flex-col items-center justify-center gap-10 px-6">
-                    <div className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 shrink-0">
-                        {/* Видео расширяется во весь экран */}
+        <div className="w-full h-full relative">
+            <ComponentContainer className={`${beigeBg} h-full`}>
+                <div className="relative h-full w-full flex flex-col items-center justify-center gap-8 px-6">
+                    {/* Видео-плашка с layoutId */}
+                    <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 shrink-0 pointer-events-none">
                         <motion.div
                             layoutId="invite-square"
                             className="absolute inset-0 overflow-hidden rounded-2xl shadow-xl"
@@ -43,9 +39,13 @@ export const StartBlock = ({ onUnlock, isUnlocked }: IProps) => {
                         </motion.div>
                     </div>
 
-                    {/* Обертка для кнопки и текста с анимацией исчезновения (scale + opacity) */}
-                    <motion.div
-                        className="flex flex-col items-center gap-3 z-10"
+                    {/* Кнопка анлока */}
+                    <motion.button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onUnlock();
+                        }}
                         initial={false}
                         animate={
                             isUnlocked
@@ -60,31 +60,22 @@ export const StartBlock = ({ onUnlock, isUnlocked }: IProps) => {
                             duration: 0.8,
                             ease: [0.22, 1, 0.36, 1],
                         }}
+                        className="flex flex-col items-center gap-3 cursor-pointer p-6 border-none bg-transparent outline-none active:scale-95 transition-transform"
                     >
-                        <motion.button
-                            type="button"
-                            onClick={onUnlock}
-                            disabled={isUnlocked}
-                            aria-label="Разблокировать приглашение"
-                            className="text-slate-800 cursor-pointer focus-visible:outline-none rounded-sm disabled:cursor-default"
-                            whileHover={
-                                isUnlocked ? undefined : { scale: 1.08 }
-                            }
-                            whileTap={isUnlocked ? undefined : { scale: 0.95 }}
-                        >
+                        <div className="text-slate-800">
                             {isUnlocked ? (
                                 <LockKeyholeOpenIcon className="w-10 h-10" />
                             ) : (
                                 <LockKeyholeIcon className="w-10 h-10" />
                             )}
-                        </motion.button>
+                        </div>
 
-                        <p className="font-serif text-slate-700 text-lg tracking-wide select-none">
+                        <span className="font-serif text-slate-700 text-lg tracking-wide select-none">
                             Разблокируйте приглашение
-                        </p>
-                    </motion.div>
+                        </span>
+                    </motion.button>
                 </div>
             </ComponentContainer>
-        </motion.div>
+        </div>
     );
 };
