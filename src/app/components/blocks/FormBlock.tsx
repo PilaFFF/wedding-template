@@ -2,6 +2,7 @@
 
 import { motion, Variants, AnimatePresence } from 'framer-motion';
 import React, { useState } from 'react';
+import confetti from 'canvas-confetti';
 import { ComponentContainer } from '../../ui/layout/ComponentContainer';
 import { greenBg } from '@/app/consts/constColors.const';
 import { sendTelegramMessage } from '@/app/rsvp/route';
@@ -57,11 +58,27 @@ export const FormBlock = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSent, setIsSent] = useState(false);
 
+    const fireConfetti = () => {
+        // Красивый двойной залп конфетти по бокам экрана
+        confetti({
+            particleCount: 80,
+            spread: 60,
+            origin: { x: 0.2, y: 0.6 },
+            disableForReducedMotion: true,
+        });
+        confetti({
+            particleCount: 80,
+            spread: 60,
+            origin: { x: 0.8, y: 0.6 },
+            disableForReducedMotion: true,
+        });
+    };
+
     const handleDrinkToggle = (label: string) => {
         setDrinks((prev) =>
             prev.includes(label)
                 ? prev.filter((item) => item !== label)
-                : [...prev, label]
+                : [...prev, label],
         );
     };
 
@@ -98,6 +115,7 @@ export const FormBlock = () => {
         setIsSubmitting(false);
         if (success) {
             setIsSent(true);
+            fireConfetti(); // Запуск конфетти после успешной отправки
             setFullName('');
             setAttendance('');
             setDrinks([]);
@@ -110,19 +128,8 @@ export const FormBlock = () => {
     };
 
     return (
-        <ComponentContainer className={`${greenBg} py-20`}>
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-center mb-20 z-10"
-            >
-                <span className="text-slate-900 text-3xl font-normal tracking-wide font-serif">
-                    Анкета
-                </span>
-            </motion.div>
-
-            <div className="w-full max-w-2xl mx-auto px-4 font-serif text-black">
+        <ComponentContainer className={`${greenBg} py-8`}>
+            <div className="flex flex-col items-center justify-center h-full w-full max-w-2xl mx-auto px-4 font-serif text-black">
                 {isSent ? (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -137,7 +144,7 @@ export const FormBlock = () => {
                 ) : (
                     <form
                         onSubmit={handleSubmit}
-                        className="space-y-12 text-left"
+                        className="space-y-5 text-left"
                     >
                         {/* --- БЛОК 1: ФИО --- */}
                         <motion.div
@@ -148,7 +155,7 @@ export const FormBlock = () => {
                             variants={blockVariants}
                             className="space-y-4"
                         >
-                            <label className="block text-2xl font-bold tracking-wide leading-tight">
+                            <label className="block text-xl font-bold tracking-wide leading-tight">
                                 Напишите, пожалуйста, Ваше ФИО
                             </label>
                             <input
@@ -164,7 +171,7 @@ export const FormBlock = () => {
                                     }
                                 }}
                                 placeholder="Человек-паук 🕷️"
-                                className={`w-full p-4 border bg-[#fefdfc] transition-colors outline-none focus:ring-1 font-sans text-lg ${
+                                className={`w-full p-4 border bg-none transition-colors outline-none focus:ring-1 font-sans text-lg ${
                                     errors.fullName
                                         ? 'border-red-500 focus:ring-red-500'
                                         : 'border-black focus:ring-black'
@@ -194,7 +201,7 @@ export const FormBlock = () => {
                             variants={blockVariants}
                             className="space-y-5"
                         >
-                            <h3 className="text-2xl font-bold tracking-wide leading-tight">
+                            <h3 className="text-xl font-bold tracking-wide leading-tight">
                                 Сможете ли присутствовать на нашем торжестве?
                             </h3>
                             <div className="space-y-4">
@@ -211,7 +218,7 @@ export const FormBlock = () => {
                                                 checked={attendance === option}
                                                 onChange={(e) => {
                                                     setAttendance(
-                                                        e.target.value
+                                                        e.target.value,
                                                     );
                                                     if (errors.attendance) {
                                                         setErrors((prev) => ({
@@ -259,25 +266,25 @@ export const FormBlock = () => {
                             variants={blockVariants}
                             className="space-y-5"
                         >
-                            <h3 className="text-2xl font-bold tracking-wide">
+                            <h3 className="text-xl font-bold tracking-wide">
                                 Что предпочитаете из напитков?
                             </h3>
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 {DRINK_OPTIONS.map((option) => (
                                     <label
                                         key={option.id}
-                                        className="flex items-center space-x-3 cursor-pointer select-none text-xl group"
+                                        className="flex items-center space-x-3 cursor-pointer select-none text-lg group"
                                     >
                                         <div className="relative flex items-center justify-center">
                                             <input
                                                 type="checkbox"
                                                 id={option.id}
                                                 checked={drinks.includes(
-                                                    option.label
+                                                    option.label,
                                                 )}
                                                 onChange={() =>
                                                     handleDrinkToggle(
-                                                        option.label
+                                                        option.label,
                                                     )
                                                 }
                                                 className="peer appearance-none w-6 h-6 border-2 border-black rounded-none cursor-pointer checked:bg-black transition-colors"
@@ -310,7 +317,7 @@ export const FormBlock = () => {
                             whileInView="visible"
                             viewport={{ once: true }}
                             variants={blockVariants}
-                            className="pt-6 text-center"
+                            className="pt-0 text-center"
                         >
                             <button
                                 type="submit"

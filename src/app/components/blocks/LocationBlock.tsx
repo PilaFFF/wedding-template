@@ -81,11 +81,11 @@ export const LocationBlock = () => {
                     onClick={() => {
                         window.open(
                             'https://yandex.ru/maps/-/CTwpEV7N',
-                            '_blank'
+                            '_blank',
                         );
                     }}
                     className="px-16 py-4 border-2 border-black bg-transparent text-2xl font-normal tracking-wider uppercase font-serif
-                                         hover:bg-black hover:text-[#fefdfc] transition-all duration-300 ease-in-out
+                                         hover:bg-black text-slate-900 transition-all duration-300 ease-in-out
                                          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black"
                 >
                     Посмотреть на карте →
