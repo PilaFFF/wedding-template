@@ -41,7 +41,7 @@ export const ContactsBlock = () => {
                                 href="https://wa.me/79999999999"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-block bg-black text-white px-10 py-3.5 rounded-full text-lg sm:text-xl font-serif tracking-wide shadow-md hover:scale-105 active:scale-95 transition-transform duration-200"
+                                className="inline-block bg-black text-white font-bold px-10 py-3.5 rounded-full text-lg sm:text-xl font-serif tracking-wide shadow-md hover:scale-105 active:scale-95 transition-transform duration-200"
                             >
                                 WhatsApp
                             </a>
@@ -76,6 +76,16 @@ export const ContactsBlock = () => {
                                 Давайте поделимся друг с другом счастливыми
                                 моментами этого важного дня!
                             </p>
+                        </div>
+                        <div className="pt-2">
+                            <a
+                                href="https://wa.me/79999999999"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block bg-black font-bold text-white px-10 py-3.5 rounded-full text-lg sm:text-xl font-serif tracking-wide shadow-md hover:scale-105 active:scale-95 transition-transform duration-200"
+                            >
+                                Присоединиться к чату
+                            </a>
                         </div>
                     </motion.div>
                 </div>

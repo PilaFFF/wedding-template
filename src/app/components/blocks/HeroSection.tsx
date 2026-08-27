@@ -15,7 +15,7 @@ interface HeroSectionProps {
 
 export const HeroSection = ({ isUnlocked, onUnlock }: HeroSectionProps) => {
     return (
-        <section className="relative w-full h-[100dvh] bg-[#FDFBF7] snap-start snap-always overflow-hidden select-none">
+        <section className="relative w-full h-dvh bg-[#FDFBF7] snap-start snap-always overflow-hidden select-none">
             <LayoutGroup id="hero-layout">
                 <AnimatePresence mode="wait">
                     {!isUnlocked ? (

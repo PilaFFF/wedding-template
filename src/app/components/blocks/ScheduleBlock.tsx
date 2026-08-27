@@ -43,10 +43,7 @@ export const ScheduleBlock = () => {
                     transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                     className="text-center mb-10 sm:mb-14"
                 >
-                    <span className="text-slate-800/70 tracking-[0.2em] uppercase text-xs sm:text-sm font-sans font-light block mb-2">
-                        Тайминг
-                    </span>
-                    <h2 className="text-5xl sm:text-6xl md:text-8xl text-slate-900 font-normal tracking-wide">
+                    <h2 className="text-5xl sm:text-6xl md:text-8xl text-slate-900 tracking-wide">
                         Программа дня
                     </h2>
                 </motion.div>
@@ -84,7 +81,9 @@ const ScheduleEntry = ({ item, index, isLast }: ScheduleEntryProps) => {
 
     return (
         <li
-            className={`relative pl-8 sm:pl-10 ${isLast ? '' : 'pb-10 sm:pb-14'}`}
+            className={`relative pl-8 sm:pl-10 ${
+                isLast ? '' : 'pb-10 sm:pb-14'
+            }`}
         >
             {/* Время + название — над линией */}
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 pb-2">
