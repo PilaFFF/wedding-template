@@ -1,9 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import React from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import React, { useRef } from 'react';
 import { ComponentContainer } from '../../ui/layout/ComponentContainer';
-import { beigeBg, greenBg } from '@/app/consts/constColors.const';
+import { greenBg } from '@/app/consts/constColors.const';
 
 interface ScheduleItem {
     time: string;
@@ -32,21 +32,45 @@ const SCHEDULE: ScheduleItem[] = [
 ];
 
 export const ScheduleBlock = () => {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Следим за прокруткой конкретного блока
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ['start end', 'end start'],
+    });
+
+    // Сглаживаем скролл для мягкости хода ленты
+    const smoothProgress = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001,
+    });
+
+    // Смещаем текст по горизонтали от 0% до -50% по мере прокрутки
+    const x = useTransform(smoothProgress, [0, 1], ['0%', '-50%']);
+
     return (
         <ComponentContainer className={greenBg}>
-            <section className="relative h-full w-full flex flex-col items-center px-6 sm:px-10 md:px-16 py-12 sm:py-16 font-serif">
-                {/* --- Анимированный Заголовок --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-center mb-10 sm:mb-14"
-                >
-                    <h2 className="text-5xl sm:text-6xl md:text-8xl text-slate-900 tracking-wide">
-                        Программа дня
-                    </h2>
-                </motion.div>
+            <section
+                ref={containerRef}
+                className="relative h-full w-full flex flex-col items-center px-6 sm:px-10 md:px-16 py-12 sm:py-16 font-serif overflow-hidden"
+            >
+                {/* --- Бегущая строка Заголовка при скролле --- */}
+                <div className="w-full overflow-hidden whitespace-nowrap mb-10 sm:mb-14 py-2 select-none">
+                    <motion.div style={{ x }} className="inline-flex gap-8">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="flex items-center gap-8">
+                                <h2 className="text-5xl sm:text-6xl md:text-7xl text-slate-900 tracking-wide font-normal">
+                                    Программа дня
+                                </h2>
+                                <span className="text-3xl text-slate-900/40">
+                                    ✦
+                                </span>
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
 
                 {/* --- Список Таймлайна --- */}
                 <ol className="relative w-full max-w-xl list-none m-0 p-0">
@@ -89,7 +113,7 @@ const ScheduleEntry = ({ item, index, isLast }: ScheduleEntryProps) => {
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 pb-2">
                 <motion.time
                     dateTime={item.time}
-                    className="text-6xl sm:text-7xl md:text-8xl font-semibold text-slate-900 tracking-tight"
+                    className="text-6xl sm:text-7xl font-semibold text-slate-900 tracking-tight"
                     initial={{ opacity: 0, y: 18 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.55 }}

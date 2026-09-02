@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import React from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import React, { useRef } from 'react';
 import { ComponentContainer } from '../../ui/layout/ComponentContainer';
 import { beigeBg } from '@/app/consts/constColors.const';
 import { ChevronDown } from 'lucide-react';
@@ -14,11 +14,45 @@ const PALETTE_COLORS = [
 ];
 
 export const DressCodeBlock = () => {
+    const sectionRef = useRef<HTMLDivElement>(null);
+
+    // Следим за прокруткой блока
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        offset: ['start end', 'end start'],
+    });
+
+    // Добавляем пружинную физику для плавности
+    const smoothProgress = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001,
+    });
+
+    // Трансформации для кружков (крайние разъезжаются/сдвигаются, центральные меняются местами)
+    const moveLeft = useTransform(smoothProgress, [0, 0.5, 1], [-30, 0, 30]);
+    const moveRight = useTransform(smoothProgress, [0, 0.5, 1], [30, 0, -30]);
+    const scaleCenter = useTransform(
+        smoothProgress,
+        [0, 0.5, 1],
+        [0.8, 1.15, 0.8],
+    );
+    const paletteRotate = useTransform(smoothProgress, [0, 0.5, 1], [-6, 0, 6]);
+
+    // Массив анимаций для каждого из 4 кружков
+    const circleTransforms = [
+        { x: moveLeft, scale: 1 },
+        { x: moveRight, scale: scaleCenter },
+        { x: moveLeft, scale: scaleCenter },
+        { x: moveRight, scale: 1 },
+    ];
+
     return (
         <ComponentContainer
             className={`${beigeBg} min-h-screen py-12 flex flex-col justify-between`}
         >
             <motion.section
+                ref={sectionRef}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -36,18 +70,25 @@ export const DressCodeBlock = () => {
                     присутствовать оттенки нашей цветовой гаммы
                 </p>
 
-                {/* Кружки цветов на Tailwind */}
-                <div className="bg-[#C2B4A3]/60 backdrop-blur-sm rounded-full px-6 py-3.5 flex items-center gap-3 sm:gap-4 shadow-sm">
+                {/* Анимированная палитра цветов */}
+                <motion.div
+                    style={{ rotate: paletteRotate }}
+                    className="bg-[#C2B4A3]/60 backdrop-blur-sm rounded-full px-6 py-3.5 flex items-center gap-3 sm:gap-4 shadow-sm overflow-hidden"
+                >
                     {PALETTE_COLORS.map((bgClass, index) => (
-                        <div
+                        <motion.div
                             key={index}
+                            style={{
+                                x: circleTransforms[index].x,
+                                scale: circleTransforms[index].scale,
+                            }}
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-inner border border-black/5 shrink-0 ${bgClass}`}
                         />
                     ))}
-                </div>
+                </motion.div>
             </motion.section>
 
-            {/* Блок призыва, прижатый к низу страницы */}
+            {/* Блок призыва */}
             <motion.div
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
