@@ -1,106 +1,167 @@
 'use client';
 
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 import { ComponentContainer } from '../../ui/layout/ComponentContainer';
-import { beigeBg } from '@/app/consts/constColors.const';
 import { ChevronDown } from 'lucide-react';
 
+// --- GLSL ШЕЙДЕР ДЛЯ ЖИДКОГО ФОНА ---
+const vertexShader = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = vec4(position, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  uniform float uTime;
+  uniform float uScroll;
+  varying vec2 vUv;
+
+  void main() {
+    vec2 uv = vUv;
+    
+    // Создаем мягкие волны искажения
+    float wave1 = sin(uv.x * 3.0 + uTime * 0.5 + uScroll * 2.0);
+    float wave2 = cos(uv.y * 3.0 + uTime * 0.3 - uScroll * 1.5);
+    float noise = wave1 * wave2;
+
+    // Палитра бренда (Черный, Серо-голубой, Серый, Молочный)
+    vec3 c1 = vec3(0.09, 0.09, 0.10); // #18181B
+    vec3 c2 = vec3(0.58, 0.64, 0.72); // #94A3B8
+    vec3 c3 = vec3(0.80, 0.84, 0.88); // #CBD5E1
+    vec3 c4 = vec3(0.95, 0.96, 0.98); // #F1F5F9
+
+    // Смешивание цветов по шуму и скроллу
+    float mix1 = smoothstep(-1.0, 1.0, noise + sin(uScroll * 3.0));
+    float mix2 = smoothstep(-0.5, 0.5, cos(noise + uTime * 0.2));
+
+    vec3 color = mix(mix(c4, c3, mix1), mix(c2, c1, mix2), uv.y + noise * 0.3);
+
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+// Компонент Mesh с шейдером внутри Canvas
+const ShaderBackground = ({ scrollProgress }: { scrollProgress: number }) => {
+    const meshRef = useRef<THREE.Mesh>(null);
+
+    const uniforms = useMemo(
+        () => ({
+            uTime: { value: 0 },
+            uScroll: { value: 0 },
+        }),
+        [],
+    );
+
+    useFrame((state) => {
+        if (meshRef.current) {
+            const material = meshRef.current.material as THREE.ShaderMaterial;
+            material.uniforms.uTime.value = state.clock.getElapsedTime();
+            material.uniforms.uScroll.value = scrollProgress;
+        }
+    });
+
+    return (
+        <mesh ref={meshRef}>
+            <planeGeometry args={[2, 2]} />
+            <shaderMaterial
+                vertexShader={vertexShader}
+                fragmentShader={fragmentShader}
+                uniforms={uniforms}
+            />
+        </mesh>
+    );
+};
+
 const PALETTE_COLORS = [
-    'bg-[#18181B]', // Черный
-    'bg-[#94A3B8]', // Серо-голубой
-    'bg-[#CBD5E1]', // Светло-серый
-    'bg-[#F1F5F9]', // Молочный/бежевый
+    { bg: 'bg-[#18181B]', label: 'Графит' },
+    { bg: 'bg-[#94A3B8]', label: 'Стальной' },
+    { bg: 'bg-[#CBD5E1]', label: 'Серебро' },
+    { bg: 'bg-[#F1F5F9]', label: 'Молочный' },
 ];
 
 export const DressCodeBlock = () => {
     const sectionRef = useRef<HTMLDivElement>(null);
 
-    // Следим за прокруткой блока
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ['start end', 'end start'],
     });
 
-    // Добавляем пружинную физику для плавности
-    const smoothProgress = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001,
+    const smoothScroll = useSpring(scrollYProgress, {
+        stiffness: 80,
+        damping: 25,
     });
 
-    // Трансформации для кружков (крайние разъезжаются/сдвигаются, центральные меняются местами)
-    const moveLeft = useTransform(smoothProgress, [0, 0.5, 1], [-30, 0, 30]);
-    const moveRight = useTransform(smoothProgress, [0, 0.5, 1], [30, 0, -30]);
-    const scaleCenter = useTransform(
-        smoothProgress,
-        [0, 0.5, 1],
-        [0.8, 1.15, 0.8],
-    );
-    const paletteRotate = useTransform(smoothProgress, [0, 0.5, 1], [-6, 0, 6]);
+    const [scrollVal, setScrollVal] = React.useState(0);
 
-    // Массив анимаций для каждого из 4 кружков
-    const circleTransforms = [
-        { x: moveLeft, scale: 1 },
-        { x: moveRight, scale: scaleCenter },
-        { x: moveLeft, scale: scaleCenter },
-        { x: moveRight, scale: 1 },
-    ];
+    React.useEffect(() => {
+        return smoothScroll.on('change', (latest) => setScrollVal(latest));
+    }, [smoothScroll]);
+
+    // Анимации проявления карточек
+    const cardScale = useTransform(
+        smoothScroll,
+        [0.2, 0.5, 0.8],
+        [0.9, 1, 0.9],
+    );
 
     return (
-        <ComponentContainer
-            className={`${beigeBg} min-h-screen py-12 flex flex-col justify-between`}
-        >
+        <ComponentContainer className="relative min-h-screen py-12 flex flex-col justify-between overflow-hidden">
+            {/* 1. ФОНОВЫЙ ШЕЙДЕР */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <Canvas camera={{ position: [0, 0, 1] }}>
+                    <ShaderBackground scrollProgress={scrollVal} />
+                </Canvas>
+            </div>
+
+            {/* 2. КОНТЕНТ БЛОКА */}
             <motion.section
                 ref={sectionRef}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="flex flex-col items-center text-center px-4 max-w-md mx-auto my-auto"
+                style={{ scale: cardScale }}
+                className="relative z-10 flex flex-col items-center text-center px-6 max-w-lg mx-auto my-auto backdrop-blur-md bg-white/30 p-8 sm:p-12 rounded-3xl border border-white/40 shadow-2xl"
             >
-                {/* Заголовок */}
-                <h2 className="font-serif italic text-5xl md:text-6xl text-slate-800 tracking-wide mb-6 select-none">
+                <h2 className="font-serif italic text-5xl md:text-6xl text-slate-900 tracking-wide mb-6 select-none">
                     Дресс-код
                 </h2>
 
-                {/* Подпись */}
-                <p className="text-slate-700 text-base md:text-lg font-light leading-relaxed mb-8 max-w-xs md:max-w-sm">
-                    Вы будете украшением вечера, если в вашем наряде будут
-                    присутствовать оттенки нашей цветовой гаммы
+                <p className="text-slate-800 text-base md:text-lg font-light leading-relaxed mb-10">
+                    Будем признательны, если при выборе нарядов вы придержитесь
+                    цветовой палитры нашего праздника
                 </p>
 
-                {/* Анимированная палитра цветов */}
-                <motion.div
-                    style={{ rotate: paletteRotate }}
-                    className="bg-[#C2B4A3]/60 backdrop-blur-sm rounded-full px-6 py-3.5 flex items-center gap-3 sm:gap-4 shadow-sm overflow-hidden"
-                >
-                    {PALETTE_COLORS.map((bgClass, index) => (
+                {/* Сетка цветов палитры с Glassmorphism */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+                    {PALETTE_COLORS.map((item, index) => (
                         <motion.div
                             key={index}
-                            style={{
-                                x: circleTransforms[index].x,
-                                scale: circleTransforms[index].scale,
-                            }}
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-inner border border-black/5 shrink-0 ${bgClass}`}
-                        />
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/40 backdrop-blur-sm border border-white/50"
+                        >
+                            <div
+                                className={`w-12 h-12 rounded-full shadow-md border border-black/10 ${item.bg}`}
+                            />
+                            <span className="text-xs font-sans text-slate-700 tracking-wider uppercase">
+                                {item.label}
+                            </span>
+                        </motion.div>
                     ))}
-                </motion.div>
+                </div>
             </motion.section>
 
-            {/* Блок призыва */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="flex flex-col items-center gap-3 opacity-60 text-center pb-4"
-            >
-                <span className="text-xs md:text-sm tracking-widest text-slate-700 uppercase font-light max-w-[250px]">
-                    Просим ответить на несколько вопросов ниже
+            {/* Призыв к действию */}
+            <div className="relative z-10 flex flex-col items-center gap-2 opacity-70 text-center pb-4">
+                <span className="text-xs tracking-widest text-slate-800 uppercase font-light">
+                    Пожалуйста, заполните анкету ниже
                 </span>
-                <ChevronDown className="w-5 h-5 text-slate-700 animate-bounce" />
-            </motion.div>
+                <ChevronDown className="w-5 h-5 text-slate-800 animate-bounce" />
+            </div>
         </ComponentContainer>
     );
 };
