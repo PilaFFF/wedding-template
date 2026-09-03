@@ -4,7 +4,7 @@ import { motion, Variants, AnimatePresence } from 'framer-motion';
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { ComponentContainer } from '../../ui/layout/ComponentContainer';
-import { greenBg } from '@/app/consts/constColors.const';
+import { GlassPanel } from '../../ui/layout/GlassPanel';
 import { sendTelegramMessage } from '@/app/rsvp/route';
 
 const blockVariants: Variants = {
@@ -128,13 +128,13 @@ export const FormBlock = () => {
     };
 
     return (
-        <ComponentContainer className={`${greenBg} py-8`}>
-            <div className="flex flex-col items-center justify-center h-full w-full max-w-2xl mx-auto px-4 font-serif text-black">
+        <ComponentContainer className="relative flex items-center justify-center px-4 sm:px-6 py-8">
+            <GlassPanel className="w-full max-w-2xl p-6 sm:p-10 font-serif text-black overflow-y-auto max-h-[90vh]">
                 {isSent ? (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="text-center p-10 border border-black bg-white/30 backdrop-blur-sm"
+                        className="text-center py-6"
                     >
                         <h3 className="text-3xl font-normal mb-4">Спасибо!</h3>
                         <p className="text-xl text-gray-800">
@@ -331,7 +331,7 @@ export const FormBlock = () => {
                         </motion.div>
                     </form>
                 )}
-            </div>
+            </GlassPanel>
         </ComponentContainer>
     );
 };

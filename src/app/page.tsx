@@ -9,20 +9,12 @@ import { ContactsBlock } from './components/blocks/ContactsBlock';
 import { LocationBlock } from './components/blocks/LocationBlock';
 import { HeroSection } from './components/blocks/HeroSection';
 
-// Отключаем SSR для Three.js компонента, чтобы избежать ошибок гидратации
-const VercelReactiveHero = dynamic(
+const ShaderPageBackground = dynamic(
     () =>
-        import('./components/blocks/VercelGlowHero').then(
-            (mod) => mod.VercelReactiveHero
+        import('./components/ShaderPageBackground').then(
+            (mod) => mod.ShaderPageBackground,
         ),
-    { ssr: false }
-);
-const VercelGlowHeroFirst = dynamic(
-    () =>
-        import('./components/blocks/VercelGlowHeroFirst').then(
-            (mod) => mod.VercelReactiveHeroFirst
-        ),
-    { ssr: false }
+    { ssr: false },
 );
 
 export default function Home() {
@@ -45,42 +37,40 @@ export default function Home() {
 
     return (
         <main
-            className={`w-full bg-[#FDFBF7] ${
+            className={`relative w-full ${
                 isUnlocked
                     ? 'min-h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth'
-                    : 'h-screen overflow-hidden'
+                    : 'h-screen overflow-hidden bg-[#FDFBF7]'
             }`}
         >
-            <HeroSection
-                isUnlocked={isUnlocked}
-                onUnlock={() => setIsUnlocked(true)}
-            />
+            {isUnlocked && <ShaderPageBackground />}
 
-            {isUnlocked && (
-                <div className="w-full">
-                    {/* <div className="w-full snap-start snap-always">
-                        <VercelReactiveHero />
-                    </div> */}
-                    <div className="w-full snap-start snap-always">
-                        <VercelGlowHeroFirst />
+            <div className="relative z-10">
+                <HeroSection
+                    isUnlocked={isUnlocked}
+                    onUnlock={() => setIsUnlocked(true)}
+                />
+
+                {isUnlocked && (
+                    <div className="w-full">
+                        <div className="w-full snap-start snap-always">
+                            <LocationBlock />
+                        </div>
+                        <div className="w-full snap-start snap-always">
+                            <ScheduleBlock />
+                        </div>
+                        <div className="w-full snap-start snap-always">
+                            <DressCodeBlock />
+                        </div>
+                        <div className="w-full snap-start snap-always">
+                            <FormBlock />
+                        </div>
+                        <div className="w-full snap-start snap-always">
+                            <ContactsBlock />
+                        </div>
                     </div>
-                    <div className="w-full snap-start snap-always">
-                        <LocationBlock />
-                    </div>
-                    <div className="w-full snap-start snap-always">
-                        <ScheduleBlock />
-                    </div>
-                    <div className="w-full snap-start snap-always">
-                        <DressCodeBlock />
-                    </div>
-                    <div className="w-full snap-start snap-always">
-                        <FormBlock />
-                    </div>
-                    <div className="w-full snap-start snap-always">
-                        <ContactsBlock />
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
         </main>
     );
 }

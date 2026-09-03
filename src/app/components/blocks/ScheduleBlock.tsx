@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import React, { useRef } from 'react';
 import { ComponentContainer } from '../../ui/layout/ComponentContainer';
-import { greenBg } from '@/app/consts/constColors.const';
+import { GlassPanel } from '../../ui/layout/GlassPanel';
 
 interface ScheduleItem {
     time: string;
@@ -34,62 +34,58 @@ const SCHEDULE: ScheduleItem[] = [
 export const ScheduleBlock = () => {
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Следим за прокруткой конкретного блока
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ['start end', 'end start'],
     });
 
-    // Сглаживаем скролл для мягкости хода ленты
     const smoothProgress = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
         restDelta: 0.001,
     });
 
-    // Смещаем текст по горизонтали от 0% до -50% по мере прокрутки
     const x = useTransform(smoothProgress, [0, 1], ['0%', '-50%']);
 
     return (
-        <ComponentContainer className={greenBg}>
-            <section
-                ref={containerRef}
-                className="relative h-full w-full flex flex-col items-center px-6 sm:px-10 md:px-16 py-12 sm:py-16 font-serif overflow-hidden"
-            >
-                {/* --- Бегущая строка Заголовка при скролле --- */}
-                <div className="w-full overflow-hidden whitespace-nowrap mb-10 sm:mb-14 py-2 select-none">
-                    <motion.div style={{ x }} className="inline-flex gap-8">
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className="flex items-center gap-8">
-                                <h2 className="text-5xl sm:text-6xl md:text-7xl text-slate-900 tracking-wide font-normal">
-                                    Программа дня
-                                </h2>
-                                <span className="text-3xl text-slate-900/40">
-                                    ✦
-                                </span>
-                            </div>
-                        ))}
-                    </motion.div>
-                </div>
+        <ComponentContainer className="relative flex items-center justify-center px-4 sm:px-6 py-12 overflow-hidden">
+            <GlassPanel className="w-full max-w-xl p-6 sm:p-10 font-serif overflow-hidden">
+                <section ref={containerRef} className="w-full">
+                    <div className="w-full overflow-hidden whitespace-nowrap mb-8 sm:mb-10 py-1 select-none">
+                        <motion.div style={{ x }} className="inline-flex gap-8">
+                            {[...Array(6)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="flex items-center gap-8"
+                                >
+                                    <h2 className="text-4xl sm:text-5xl md:text-6xl text-slate-900 tracking-wide font-normal">
+                                        Программа дня
+                                    </h2>
+                                    <span className="text-2xl text-slate-900/40">
+                                        ✦
+                                    </span>
+                                </div>
+                            ))}
+                        </motion.div>
+                    </div>
 
-                {/* --- Список Таймлайна --- */}
-                <ol className="relative w-full max-w-xl list-none m-0 p-0">
-                    {/* Вертикальная пунктирная линия */}
-                    <div
-                        aria-hidden
-                        className="absolute left-[5px] top-8 bottom-8 w-px border-l border-dashed border-slate-900/70"
-                    />
-
-                    {SCHEDULE.map((item, index) => (
-                        <ScheduleEntry
-                            key={item.time}
-                            item={item}
-                            index={index}
-                            isLast={index === SCHEDULE.length - 1}
+                    <ol className="relative w-full list-none m-0 p-0">
+                        <div
+                            aria-hidden
+                            className="absolute left-[5px] top-8 bottom-8 w-px border-l border-dashed border-slate-900/70"
                         />
-                    ))}
-                </ol>
-            </section>
+
+                        {SCHEDULE.map((item, index) => (
+                            <ScheduleEntry
+                                key={item.time}
+                                item={item}
+                                index={index}
+                                isLast={index === SCHEDULE.length - 1}
+                            />
+                        ))}
+                    </ol>
+                </section>
+            </GlassPanel>
         </ComponentContainer>
     );
 };
@@ -106,14 +102,13 @@ const ScheduleEntry = ({ item, index, isLast }: ScheduleEntryProps) => {
     return (
         <li
             className={`relative pl-8 sm:pl-10 ${
-                isLast ? '' : 'pb-10 sm:pb-14'
+                isLast ? '' : 'pb-10 sm:pb-12'
             }`}
         >
-            {/* Время + название — над линией */}
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 pb-2">
                 <motion.time
                     dateTime={item.time}
-                    className="text-6xl sm:text-7xl font-semibold text-slate-900 tracking-tight"
+                    className="text-5xl sm:text-6xl font-semibold text-slate-900 tracking-tight"
                     initial={{ opacity: 0, y: 18 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.55 }}
@@ -127,7 +122,7 @@ const ScheduleEntry = ({ item, index, isLast }: ScheduleEntryProps) => {
                 </motion.time>
 
                 <motion.h3
-                    className="text-2xl sm:text-3xl md:text-4xl text-slate-900 font-normal"
+                    className="text-xl sm:text-2xl md:text-3xl text-slate-900 font-normal"
                     initial={{ opacity: 0, y: 18 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.55 }}
@@ -141,7 +136,6 @@ const ScheduleEntry = ({ item, index, isLast }: ScheduleEntryProps) => {
                 </motion.h3>
             </div>
 
-            {/* Точка + горизонтальная линия от точки вправо */}
             <div className="relative -ml-8 sm:-ml-10 mr-0 flex items-center h-px">
                 <motion.span
                     aria-hidden
@@ -172,7 +166,7 @@ const ScheduleEntry = ({ item, index, isLast }: ScheduleEntryProps) => {
 
             {item.description ? (
                 <motion.p
-                    className="pt-3 text-xl sm:text-2xl text-slate-700 leading-snug max-w-md"
+                    className="pt-3 text-lg sm:text-xl text-slate-700 leading-snug max-w-md"
                     initial={{ opacity: 0, y: 12 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.5 }}
